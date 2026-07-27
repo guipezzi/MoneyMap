@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+env/
+*.egg-info/
+
+# Django
+*.sqlite3
+staticfiles/
+
+# Node
+node_modules/
+dist/
+.vite/
+
+# Env
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+
+# Docker
+postgres_data/

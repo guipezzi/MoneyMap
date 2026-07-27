@@ -1,0 +1,161 @@
+Sprint 0 - Setup (1-2 dias)
+ Criar repositorio Git, .gitignore (node_modules, pycache, .env, venv)
+ Criar docker-compose.yml com servicos db, backend, frontend
+ Django rodando dentro do container, conectado ao Postgres
+ Vite + React + TS rodando dentro do container
+ Confirmar que docker-compose up sobe tudo com um comando
+
+Meta do sprint: ambiente funcionando, mesmo sem nenhuma feature.
+
+Sprint 1 - Modelagem e autenticacao (2-3 dias)
+ Criar Category e Transaction models
+ Rodar migrations, testar no Django Admin
+ Implementar JWT (djangorestframework-simplejwt)
+ Endpoints: /api/auth/register/, /api/auth/login/, /api/auth/refresh/
+ Testes: criar usuario, fazer login, tentar acessar endpoint protegido sem token (deve falhar)
+
+Meta do sprint: da pra criar conta e logar via Postman/Insomnia.
+
+Sprint 2 - CRUD de transacoes (2-3 dias)
+ ModelViewSet para Category e Transaction
+ Garantir que cada usuario so ve/edita seus proprios dados (get_queryset filtrando por request.user)
+ Filtros com django-filter (por data, tipo, categoria)
+ Testes cobrindo isolamento entre usuarios (usuario A nao pode ver transacao do usuario B)
+
+Meta do sprint: CRUD completo testavel via Postman, com dados isolados por usuario.
+
+Sprint 3 - Endpoint de agregacao (1-2 dias)
+ Criar dashboard/services.py com funcoes de agregacao (total por categoria, saldo do mes, evolucao mensal)
+ Expor via dashboard/views.py: /api/dashboard/summary/?month=2026-07
+ Testes: criar transacoes conhecidas, verificar se o total bate
+
+Meta do sprint: a API ja entrega os numeros prontos pro grafico, sem o front precisar calcular nada.
+
+Sprint 4 - Frontend: autenticacao e layout (2 dias)
+ AuthContext com login/logout/persistencia de token
+ Tela de login
+ Layout base (Navbar/Sidebar) e rotas protegidas (React Router)
+Sprint 5 - Frontend: transacoes (2-3 dias)
+ TransactionForm com React Hook Form + Zod
+ TransactionList com paginacao
+ Integracao com API via hooks (useTransactions)
+Sprint 6 - Frontend: dashboard visual (2-3 dias)
+ SummaryCards (saldo, receitas, despesas do mes)
+ CategoryPieChart e MonthlyBarChart com Recharts
+ Filtro de periodo conectado a API
+
+Meta do sprint 4-6: aplicacao funcional de ponta a ponta.
+
+Sprint 7 - Polimento e diferenciais (flexivel)
+
+Escolha 1-2:
+
+ Exportacao PDF/CSV
+ Metas de orcamento com alerta visual
+ Dark mode
+ Import de CSV de extrato bancario
+Sprint 8 - Deploy e documentacao
+ Deploy (Render/Railway pro backend+db, Vercel pro front, ou tudo junto via Docker num VPS)
+ README com prints, gif de uso, instrucoes de setup local
+ Variaveis de ambiente documentadas em .env.example
+
+
+ MoneyMap/
+│
+├── docker-compose.yml
+├── .env.example
+├── .gitignore
+├── README.md
+│
+├── backend/
+│   ├── Dockerfile
+│   ├── requirements.txt
+│   ├── manage.py
+│   ├── pytest.ini
+│   │
+│   ├── config/                    
+│   │   ├── __init__.py
+│   │   ├── settings.py
+│   │   ├── urls.py
+│   │   ├── wsgi.py
+│   │   └── asgi.py
+│   │
+│   ├── accounts/                  
+│   │   ├── models.py
+│   │   ├── serializers.py
+│   │   ├── views.py
+│   │   ├── urls.py
+│   │   └── tests/
+│   │
+│   ├── categories/               
+│   │   ├── models.py
+│   │   ├── serializers.py
+│   │   ├── views.py
+│   │   ├── urls.py
+│   │   └── tests/
+│   │
+│   ├── transactions/               
+│   │   ├── serializers.py
+│   │   ├── views.py
+│   │   ├── filters.py             
+│   │   ├── urls.py
+│   │   └── tests/
+│   │
+│   └── dashboard/                
+│       ├── views.py                
+│       ├── services.py            
+│       ├── urls.py
+│       └── tests/
+│
+└── frontend/
+    ├── Dockerfile
+    ├── package.json
+    ├── tsconfig.json
+    ├── vite.config.ts
+    ├── index.html
+    │
+    └── src/
+        ├── main.tsx
+        ├── App.tsx
+        │
+        ├── api/
+        │   ├── client.ts          
+        │   ├── auth.ts
+        │   ├── transactions.ts
+        │   └── dashboard.ts
+        │
+        ├── types/
+        │   ├── transaction.ts
+        │   ├── category.ts
+        │   └── dashboard.ts
+        │
+        ├── hooks/
+        │   ├── useAuth.ts
+        │   ├── useTransactions.ts
+        │   └── useDashboard.ts
+        │
+        ├── components/
+        │   ├── ui/                 
+        │   ├── transactions/
+        │   │   ├── TransactionForm.tsx
+        │   │   ├── TransactionList.tsx
+        │   │   └── TransactionItem.tsx
+        │   ├── dashboard/
+        │   │   ├── SummaryCards.tsx
+        │   │   ├── CategoryPieChart.tsx
+        │   │   └── MonthlyBarChart.tsx
+        │   └── layout/
+        │       ├── Navbar.tsx
+        │       └── Sidebar.tsx
+        │
+        ├── pages/
+        │   ├── LoginPage.tsx
+        │   ├── DashboardPage.tsx
+        │   └── TransactionsPage.tsx
+        │
+        ├── context/
+        │   └── AuthContext.tsx
+        │
+        └── utils/
+            ├── formatCurrency.ts
+            └── dateHelpers.ts
