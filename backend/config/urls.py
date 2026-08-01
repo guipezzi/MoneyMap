@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from dashboard.views import DashboardSummaryView
+from dashboard.views import DashboardSummaryView, DashboardExportView
 
 from categories.views import CategoryViewSet
 from transactions.views import TransactionViewSet
@@ -18,4 +18,5 @@ urlpatterns = [
     path('api/auth/', include('accounts.urls')),
     path('api/', include(router.urls)),
     path('api/dashboard/summary/', DashboardSummaryView.as_view(), name='dashboard-summary'),
+    path('api/dashboard/export/', DashboardExportView.as_view(), name='dashboard-export'),
 ]

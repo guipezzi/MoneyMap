@@ -73,3 +73,18 @@ def get_monthly_evolution(user, months_count=6):
         )
 
     return evolution
+
+
+def get_transactions_for_export(user, month_str):
+    """
+    Retorna as transações do período (mesmo intervalo usado em get_summary),
+    já com a categoria pré-carregada via select_related (evita N+1 query
+    ao montar o relatório em PDF, que precisa de nome/cor de cada categoria).
+    Ordenado por data (mais antiga primeiro), igual ao formato de extrato.
+    """
+    start, end = get_month_range(month_str)
+    return (
+        Transaction.objects.filter(user=user, date__gte=start, date__lte=end)
+        .select_related("category")
+        .order_by("date")
+    )

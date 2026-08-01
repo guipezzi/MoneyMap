@@ -8,9 +8,11 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
+import { Button } from "@/components/ui/button"
 import { SummaryCards } from "@/components/dashboard/SummaryCards"
 import { CategoryPieChart } from "@/components/dashboard/CategoryPieChart"
 import { MonthlyBarChart } from "@/components/dashboard/MonthlyBarChart"
+import { downloadDashboardExport } from "@/api/dashboard"
 
 const MONTHS = [
     { value: "01", label: "Janeiro" },
@@ -40,10 +42,24 @@ export function DashboardPage() {
     const today = new Date()
     const [month, setMonth] = useState(String(today.getMonth() + 1).padStart(2, "0"))
     const [year, setYear] = useState(String(today.getFullYear()))
+    const [isExporting, setIsExporting] = useState(false)
+    const [exportError, setExportError] = useState<string | null>(null)
 
     const monthStr = `${year}-${month}`
     const { data, loading, error } = useDashboard(monthStr)
     const years = getYearOptions()
+
+    async function handleExport() {
+        setIsExporting(true)
+        setExportError(null)
+        try {
+            await downloadDashboardExport(monthStr)
+        } catch {
+            setExportError("Não foi possível gerar o PDF. Tente novamente.")
+        } finally {
+            setIsExporting(false)
+        }
+    }
 
     return (
         <div className="space-y-6">
@@ -74,8 +90,13 @@ export function DashboardPage() {
                             ))}
                         </SelectContent>
                     </Select>
+                    <Button variant="outline" onClick={handleExport} disabled={isExporting}>
+                        {isExporting ? "Gerando PDF..." : "Exportar PDF"}
+                    </Button>
                 </div>
             </div>
+
+            {exportError && <p className="text-destructive text-sm">{exportError}</p>}
 
             {loading && <p className="text-muted-foreground">Carregando...</p>}
             {error && <p className="text-destructive">{error}</p>}

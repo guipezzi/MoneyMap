@@ -1,5 +1,6 @@
 import { NavLink } from "react-router-dom"
 import { useAuth } from "@/context/AuthContext"
+import { useTheme } from "@/context/ThemeContext"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
@@ -10,6 +11,7 @@ const navItems = [
 
 export function Navbar() {
   const { logout } = useAuth()
+  const { theme, toggleTheme } = useTheme()
 
   return (
     <header className="border-b border-border bg-card">
@@ -39,9 +41,19 @@ export function Navbar() {
           </nav>
         </div>
 
-        <Button variant="outline" size="sm" onClick={logout}>
-          Sair
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={toggleTheme}
+            aria-label={theme === "dark" ? "Ativar tema claro" : "Ativar tema escuro"}
+          >
+            {theme === "dark" ? "🌙" : "☀️"}
+          </Button>
+          <Button variant="outline" size="sm" onClick={logout}>
+            Sair
+          </Button>
+        </div>
       </div>
     </header>
   )
