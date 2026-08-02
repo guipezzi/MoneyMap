@@ -2,7 +2,7 @@
 
 Dashboard de controle financeiro pessoal, com autenticação, categorização de transações, gráficos e exportação de relatórios em PDF.
 
-Projeto desenvolvido como portfólio, do zero, com back-end e front-end próprios (sem boilerplates ou templates prontos de dashboard).
+Projeto desenvolvido para fins didáticos, do zero, com back-end e front-end próprios (sem boilerplates ou templates prontos de dashboard).
 
 ## 🔗 Demo online
 
