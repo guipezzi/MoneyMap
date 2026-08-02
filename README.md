@@ -11,7 +11,7 @@ Projeto desenvolvido como portfólio, do zero, com back-end e front-end próprio
 
 > ⚠️ **Nota sobre o primeiro acesso**: o back-end roda no plano gratuito do Render, que "dorme" após 15 minutos sem uso. Se o app demorar de 30 a 60 segundos pra responder na primeira requisição, é esperado — é o servidor "acordando", não um bug. Depois disso, a navegação fica normal.
 
-Não quer criar uma conta? Na tela de login, use o botão **"Entrar como visitante"** — ele acessa uma conta de demonstração já populada com categorias e transações de exemplo, pronta pra explorar o dashboard sem nenhum cadastro.
+Na tela de login, use o botão **"Entrar como visitante"** — ele acessa uma conta de demonstração já populada com categorias e transações de exemplo, pronta pra explorar o dashboard sem nenhum cadastro.
 
 ## ✨ Funcionalidades
 
@@ -135,7 +135,3 @@ docker-compose exec backend pytest
 
 - GitHub: [@guipezzi](https://github.com/guipezzi)
 - LinkedIn: [guilherme-de-araujo-pezzi-nunes](https://www.linkedin.com/in/guilherme-de-araujo-pezzi-nunes/)
-
-## 📄 Licença
-
-Este projeto foi desenvolvido para fins de portfólio.
