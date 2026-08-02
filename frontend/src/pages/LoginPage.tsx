@@ -13,6 +13,9 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 
+const DEMO_USERNAME = import.meta.env.VITE_DEMO_USERNAME
+const DEMO_PASSWORD = import.meta.env.VITE_DEMO_PASSWORD
+
 export function LoginPage() {
   const { login, isLoading } = useAuth()
   const navigate = useNavigate()
@@ -21,12 +24,10 @@ export function LoginPage() {
   const [password, setPassword] = React.useState("")
   const [error, setError] = React.useState<string | null>(null)
 
-  async function handleSubmit(event: React.FormEvent) {
-    event.preventDefault()
+  async function performLogin(usernameValue: string, passwordValue: string) {
     setError(null)
-
     try {
-      await login({ username, password })
+      await login({ username: usernameValue, password: passwordValue })
       navigate("/", { replace: true })
     } catch (err) {
       if (err instanceof ApiError) {
@@ -35,6 +36,15 @@ export function LoginPage() {
         setError("Erro ao conectar com o servidor.")
       }
     }
+  }
+
+  async function handleSubmit(event: React.FormEvent) {
+    event.preventDefault()
+    await performLogin(username, password)
+  }
+
+  async function handleDemoLogin() {
+    await performLogin(DEMO_USERNAME, DEMO_PASSWORD)
   }
 
   return (
@@ -78,6 +88,23 @@ export function LoginPage() {
             <Button type="submit" disabled={isLoading} className="mt-2">
               {isLoading ? "Entrando..." : "Entrar"}
             </Button>
+
+            {DEMO_USERNAME && DEMO_PASSWORD && (
+              <>
+                <div className="relative my-1 text-center text-xs text-muted-foreground">
+                  <span className="bg-card px-2 relative z-10">ou</span>
+                  <div className="absolute inset-x-0 top-1/2 h-px bg-border" />
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={isLoading}
+                  onClick={handleDemoLogin}
+                >
+                  Entrar como visitante
+                </Button>
+              </>
+            )}
           </form>
         </CardContent>
       </Card>
