@@ -129,17 +129,20 @@ export function TransactionsPage() {
           <TransactionForm
             key={editingTransaction?.id ?? "new"}
             categories={categories}
+            onCategoryCreated={(newCategory) =>
+              setCategories((prev) => [...prev, newCategory])
+            }
             isSubmitting={isSubmitting}
             submitLabel={editingTransaction ? "Salvar alterações" : "Criar"}
             initialValues={
               editingTransaction
                 ? {
-                    description: editingTransaction.description,
-                    amount: Number(editingTransaction.amount),
-                    type: editingTransaction.type,
-                    date: editingTransaction.date,
-                    category: editingTransaction.category,
-                  }
+                  description: editingTransaction.description,
+                  amount: Number(editingTransaction.amount),
+                  type: editingTransaction.type,
+                  date: editingTransaction.date,
+                  category: editingTransaction.category,
+                }
                 : undefined
             }
             onSubmit={handleSubmit}

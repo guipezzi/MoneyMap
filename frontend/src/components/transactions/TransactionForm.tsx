@@ -20,8 +20,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { listCategories } from "@/api/categories"
-import type { Category, CategoryType } from "@/types/category"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { CategoryForm } from "@/components/categories/CategoryForm"
+import { listCategories, createCategory } from "@/api/categories"
+import { ApiError } from "@/api/client"
+import type { Category, CategoryInput, CategoryType } from "@/types/category"
 import type { TransactionInput } from "@/types/transaction"
 
 const transactionSchema = z.object({
@@ -36,10 +44,12 @@ const transactionSchema = z.object({
     required_error: "Selecione o tipo",
   }),
   date: z.string().min(1, "Selecione a data"),
-  category: z.coerce.number({
-    required_error: "Selecione uma categoria",
-    invalid_type_error: "Selecione uma categoria",
-  }),
+  category: z.coerce
+    .number({
+      required_error: "Selecione uma categoria",
+      invalid_type_error: "Selecione uma categoria",
+    })
+    .positive("Selecione uma categoria"),
 })
 
 type TransactionFormValues = z.infer<typeof transactionSchema>
@@ -50,6 +60,10 @@ interface TransactionFormProps {
   isSubmitting?: boolean
   submitLabel?: string
   categories?: Category[]
+  // Chamado quando uma categoria é criada pelo atalho rápido (ver abaixo),
+  // para o componente pai (ex: TransactionsPage) atualizar sua própria
+  // lista de categorias sem precisar refazer a busca inteira.
+  onCategoryCreated?: (category: Category) => void
 }
 
 export function TransactionForm({
@@ -58,6 +72,7 @@ export function TransactionForm({
   isSubmitting = false,
   submitLabel = "Salvar",
   categories: categoriesProp,
+  onCategoryCreated,
 }: TransactionFormProps) {
   const [fetchedCategories, setFetchedCategories] = useState<Category[]>([])
   const [isLoadingCategories, setIsLoadingCategories] = useState(
@@ -65,6 +80,12 @@ export function TransactionForm({
   )
 
   const categories = categoriesProp ?? fetchedCategories
+
+  const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false)
+  const [isCreatingCategory, setIsCreatingCategory] = useState(false)
+  const [categoryFormError, setCategoryFormError] = useState<string | null>(
+    null
+  )
 
   const form = useForm<TransactionFormValues>({
     resolver: zodResolver(transactionSchema),
@@ -100,6 +121,40 @@ export function TransactionForm({
       date: values.date,
       category: values.category,
     })
+  }
+
+  function openCategoryDialog() {
+    setCategoryFormError(null)
+    setIsCategoryDialogOpen(true)
+  }
+
+  async function handleCreateCategory(data: CategoryInput) {
+    setIsCreatingCategory(true)
+    setCategoryFormError(null)
+    try {
+      const newCategory = await createCategory(data)
+
+      // Se as categorias vêm de fora (prop), quem controla a lista de
+      // verdade é o componente pai — avisamos ele aqui. Se vêm de dentro
+      // (fetch próprio), atualizamos o estado local direto.
+      if (categoriesProp !== undefined) {
+        onCategoryCreated?.(newCategory)
+      } else {
+        setFetchedCategories((prev) => [...prev, newCategory])
+      }
+
+      // já seleciona a categoria recém-criada, sem o usuário escolher de novo
+      form.setValue("category", newCategory.id)
+      setIsCategoryDialogOpen(false)
+    } catch (err) {
+      setCategoryFormError(
+        err instanceof ApiError
+          ? err.message
+          : "Não foi possível criar a categoria. Tente novamente."
+      )
+    } finally {
+      setIsCreatingCategory(false)
+    }
   }
 
   return (
@@ -197,7 +252,7 @@ export function TransactionForm({
                 <FormLabel>Categoria</FormLabel>
                 <Select
                   onValueChange={(value) => field.onChange(Number(value))}
-                  value={field.value ? String(field.value) : undefined}
+                  value={field.value ? String(field.value) : ""}
                   disabled={isLoadingCategories || !selectedType}
                 >
                   <FormControl>
@@ -222,6 +277,14 @@ export function TransactionForm({
                     ))}
                   </SelectContent>
                 </Select>
+                <button
+                  type="button"
+                  onClick={openCategoryDialog}
+                  disabled={!selectedType}
+                  className="mt-1 text-left text-xs text-muted-foreground underline-offset-2 hover:text-foreground hover:underline disabled:pointer-events-none disabled:opacity-50"
+                >
+                  + Nova categoria
+                </button>
                 <FormMessage />
               </FormItem>
             )}
@@ -232,6 +295,27 @@ export function TransactionForm({
           {isSubmitting ? "Salvando..." : submitLabel}
         </Button>
       </form>
+
+      <Dialog
+        open={isCategoryDialogOpen}
+        onOpenChange={setIsCategoryDialogOpen}
+        modal={false}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Nova categoria</DialogTitle>
+          </DialogHeader>
+          {categoryFormError && (
+            <p className="text-sm text-destructive">{categoryFormError}</p>
+          )}
+          <CategoryForm
+            initialValues={selectedType ? { type: selectedType } : undefined}
+            onSubmit={handleCreateCategory}
+            isSubmitting={isCreatingCategory}
+            submitLabel="Criar"
+          />
+        </DialogContent>
+      </Dialog>
     </Form>
   )
 }

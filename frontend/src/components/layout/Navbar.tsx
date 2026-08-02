@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils"
 const navItems = [
   { to: "/", label: "Dashboard" },
   { to: "/transactions", label: "Transações" },
+  { to: "/categories", label: "Categorias" },
 ]
 
 export function Navbar() {
